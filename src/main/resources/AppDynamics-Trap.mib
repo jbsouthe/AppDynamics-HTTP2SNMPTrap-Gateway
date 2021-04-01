@@ -1,0 +1,331 @@
+AppDynamics-TRAP-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+  MODULE-IDENTITY, enterprises,
+  OBJECT-TYPE, NOTIFICATION-TYPE, Integer32,
+  Counter64
+     FROM SNMPv2-SMI
+   OBJECT-GROUP, NOTIFICATION-GROUP
+       FROM SNMPv2-CONF;
+
+appdynamics MODULE-IDENTITY
+   LAST-UPDATED "202012110000Z"
+   ORGANIZATION "AppDynamics Cisco"
+   CONTACT-INFO
+       "AppDynamics
+       Author: John.Southerland@appdynamics.com or josouthe@cisco.com
+       Last Ditch Email: it@appdynamics.com"
+
+   DESCRIPTION
+       "This MIB contains the definition of the SNMP Traps associated with Events and Health Rule Violations
+       sent by the AppDyanmics Controller -> REST Web Proxy -> a trap receiver.
+
+       This will need to be imported into your own trap receiver software in order to map the OIDs to values"
+
+   REVISION "202009100000Z"
+   DESCRIPTION "First Revision, John Southerland john.southerland@appdynamics.com"
+   REVISION "202012110000Z"
+   DESCRIPTION "Second Revision, John Southerland john.southerland@appdynamics.com; corrected mibile to mobile name; added machine name CSV list and ipaddress CSV list"
+
+::= { enterprises 40684 }
+
+events OBJECT IDENTIFIER ::= { appdynamics 138 }
+
+eventsTable OBJECT-TYPE
+   SYNTAX  SEQUENCE OF EventEntry
+   MAX-ACCESS          not-accessible
+   STATUS              current
+   DESCRIPTION         "table of events triggered from AppDynamics Controller"
+   ::= { events 1 }
+
+eventEntry  OBJECT-TYPE
+   SYNTAX              EventEntry
+   MAX-ACCESS          not-accessible
+   STATUS              current
+   DESCRIPTION         "data structure for an event object"
+   INDEX               { eventId }
+   ::= { eventsTable 1 }
+
+
+
+EventEntry  ::= SEQUENCE {
+   eventId             OCTET STRING,
+   eventType           INTEGER,
+   guid                OCTET STRING,
+   eventTypeKey        OCTET STRING,
+   eventTimeStamp      OCTET STRING,
+   displayName         OCTET STRING,
+   summaryMessage      OCTET STRING,
+   eventMessage        OCTET STRING,
+   applicationName     OCTET STRING,
+   applicationId       INTEGER,
+   tierName            OCTET STRING,
+   tierId              INTEGER,
+   nodeName            OCTET STRING,
+   nodeId              INTEGER,
+   databaseName        OCTET STRING,
+   databaseId          INTEGER,
+   severity            INTEGER,
+   severityImageURL    OCTET STRING,
+   accountName         OCTET STRING,
+   policyName          OCTET STRING,
+   actionName          OCTET STRING,
+   controllerURL       OCTET STRING,
+   deepLinkURL         OCTET STRING,
+   notes               OCTET STRING,
+   eventTypeString     OCTET STRING,
+   eventSubTypeString  OCTET STRING,
+   machineNameList     OCTET STRING,
+   ipAddressList       OCTET STRING
+}
+
+eventId  OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "ID of event in controller"
+   ::= { eventEntry 1 }
+
+eventType   OBJECT-TYPE
+   SYNTAX    INTEGER {
+         healthRuleViolationEvent (1),
+         anomalyViolationEvent (2),
+         slowTransactionEvent (3),
+         codeProblemEvent (4),
+         applicationChangeEvent (5),
+         serverCrashEvent (6),
+         appDynamicsConfigWarningEvent (7),
+         discoveryEvent (8),
+         syntheticAvailabilityEvent(9),
+         syntheticPerformanceEvent(10),
+         mobileCrashEvent(11),
+         errorEvent(12),
+	   unknownEvent(13)
+      }
+   MAX-ACCESS read-only
+   STATUS    current
+   DESCRIPTION "The type of event to forward."
+   ::= { eventEntry 2 }
+
+guid OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "GUI of event in controller"
+   ::= { eventEntry 3 }
+
+eventTypeKey OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "event type description"
+   ::= { eventEntry 4 }
+
+eventTimeStamp OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "timestamp of event"
+   ::= { eventEntry 5 }
+
+displayName OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "descriptive name of event"
+   ::= { eventEntry 6 }
+
+summaryMessage OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "summary text message of event"
+   ::= { eventEntry 7 }
+
+eventMessage OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "detailed message of event"
+   ::= { eventEntry 8 }
+
+applicationName OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "appd application name"
+   ::= { eventEntry 9 }
+
+applicationId OBJECT-TYPE
+   SYNTAX  INTEGER
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "appd application id"
+   ::= { eventEntry 10 }
+
+tierName  OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "appd tier name"
+   ::= { eventEntry 11 }
+
+tierId OBJECT-TYPE
+   SYNTAX  INTEGER
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "appd tier id"
+   ::= { eventEntry 12 }
+
+nodeName  OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "appd node name"
+   ::= { eventEntry 13 }
+
+nodeId  OBJECT-TYPE
+   SYNTAX  INTEGER
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "appd node id"
+   ::= { eventEntry 14 }
+
+databaseName  OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "appd database name"
+   ::= { eventEntry 15 }
+
+databaseId  OBJECT-TYPE
+   SYNTAX  INTEGER
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "appd database id"
+   ::= { eventEntry 16 }
+
+severity  OBJECT-TYPE
+   SYNTAX  INTEGER {
+       info (1),
+       warning (2),
+       critical (3)
+   }
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "severity of event"
+   ::= { eventEntry 17 }
+
+severityImageURL  OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "fun little image to go with severity"
+   ::= { eventEntry 18 }
+
+accountName  OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "appd account name"
+   ::= { eventEntry 19 }
+
+policyName   OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "appd policy name"
+   ::= { eventEntry 20 }
+
+actionName   OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "appd action name"
+   ::= { eventEntry 21 }
+
+controllerURL  OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "appd controller url for linking back to the UI"
+   ::= { eventEntry 22 }
+
+deepLinkURL  OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "appd event url for linking back to the UI"
+   ::= { eventEntry 23 }
+
+notes  OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "notes for this event"
+   ::= { eventEntry 24 }
+
+eventTypeString OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "String Text of Event Type"
+   ::= { eventEntry 25 }
+
+eventSubTypeString OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "Event Type has a subtype for many events, this is the raw text of that"
+   ::= { eventEntry 26 }
+
+machineNameList OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "Comma Separated List of Machine Names impacted by this event, if any"
+   ::= { eventEntry 27 }
+
+ipAddressList OBJECT-TYPE
+   SYNTAX  OCTET STRING
+   MAX-ACCESS  read-only
+   STATUS  current
+   DESCRIPTION "Comma Separated List of IP Addresses for machines impacted by this event, if any; these may also include hostnames depending on the agent and version"
+   ::= { eventEntry 28 }
+
+eventNotification NOTIFICATION-TYPE
+   OBJECTS {
+       eventId,
+       eventType,
+       guid,
+       eventTypeKey,
+       eventTimeStamp,
+       displayName,
+       summaryMessage,
+       eventMessage,
+       applicationName,
+       applicationId,
+       tierName,
+       tierId,
+       nodeName,
+       nodeId,
+       databaseName,
+       databaseId,
+       severity,
+       severityImageURL,
+       accountName,
+       policyName,
+       actionName,
+       controllerURL,
+       deepLinkURL,
+       notes,
+       eventTypeString,
+       eventSubTypeString,
+	   machineNameList,
+	   ipAddressList
+   }
+   STATUS current
+   DESCRIPTION "alert notification, trap, for an event"
+   ::= { events 2 }
+
+END

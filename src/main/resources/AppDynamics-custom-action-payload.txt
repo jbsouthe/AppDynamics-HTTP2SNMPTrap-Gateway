@@ -1,0 +1,44 @@
+Receiver:"tcp:ipaddress/port"\n
+Receiver:"tcp:ipaddress/port"\n
+Version:"2"\n
+Community:"public"\n
+
+#macro( print $name $value )
+#if ($value)
+#set($macro.string = "$value" )
+$name:"${macro.string.replace('"', "'")}"\n
+#else
+$name:""\n
+#end
+#end
+
+
+#print("eventId" ${latestEvent.id})
+#print("eventType" ${latestEvent.eventType})
+#print("guid" ${latestEvent.guid})
+#print("eventTypeKey" ${latestEvent.eventTypeKey})
+#print("eventTimeStamp" ${latestEvent.eventTime})
+#print("displayName" ${latestEvent.displayName})
+#print("summaryMessage" ${latestEvent.summaryMessage})
+#print("eventMessage" ${latestEvent.eventMessage})
+#print("applicationId" ${latestEvent.application.id})
+#print("applicationName" ${latestEvent.application.name})
+#print("tierId" ${latestEvent.tier.id})
+#print("tierName" ${latestEvent.tier.name})
+#print("nodeId" ${latestEvent.node.id})
+#print("nodeName" ${latestEvent.node.name})
+#print("databaseId" ${latestEvent.db.id})
+#print("databaseName" ${latestEvent.db.name})
+#print("severity" ${topSeverity})
+#print("severityImageURL" ${topSeverityImage.deepLink})
+#print("accountName" $account.name)
+#print("policyName" $policy.name)
+#print("actionName" ${action.name})
+#print("controllerUrl" ${controllerUrl})
+#print("deepLink" ${latestEvent.deepLink})
+#print("notes" ${notes})
+
+#foreach( ${value} in ${fullEventsNodeMap.values()} )
+   #print("machineName" ${value.machineName} )
+   #print("ipAddresses" ${value.ipAddresses} )
+#end

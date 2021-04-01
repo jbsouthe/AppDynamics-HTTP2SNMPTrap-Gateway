@@ -1,0 +1,118 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+ <!--  <project></project> -->
+  
+  <groupId>com.cisco.josouthe</groupId>
+  <artifactId>WebRestToSNMPTrap</artifactId>
+  <version>1.3</version>
+  <!-- <packaging>jar</packaging>  -->
+
+  <dependencies>
+	<!-- https://mvnrepository.com/artifact/org.snmp4j/snmp4j -->
+	<dependency>
+		<groupId>org.snmp4j</groupId>
+		<artifactId>snmp4j</artifactId>
+		<version>2.8.4</version>
+	</dependency>
+      <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+      <dependency>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-core</artifactId>
+          <version>2.13.3</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-api</artifactId>
+          <version>2.13.3</version>
+      </dependency>
+
+  </dependencies>
+  <build>
+      <sourceDirectory>${basedir}/src</sourceDirectory>
+      <resources>
+          <resource>
+              <directory>${basedir}/src</directory>
+          </resource>
+      </resources>
+    <plugins>
+		<plugin>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<configuration>
+				<source>1.8</source>
+				<target>1.8</target>
+			</configuration>
+		</plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>unpack</id>
+                    <phase>prepare-package</phase>
+                    <goals>
+                        <goal>unpack</goal>
+                    </goals>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>org.snmp4j</groupId>
+								<artifactId>snmp4j</artifactId>
+                                <type>jar</type>
+                                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.apache.logging.log4j</groupId>
+                                <artifactId>log4j-core</artifactId>
+                                <type>jar</type>
+                                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.apache.logging.log4j</groupId>
+                                <artifactId>log4j-api</artifactId>
+                                <type>jar</type>
+                                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+		<plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+            <archive>
+                <manifest>
+                    <mainClass>com.cisco.josouthe.Main</mainClass>
+                </manifest>
+            </archive>
+          <includes>
+            <include>**/*</include>
+          </includes>
+		  <outputDirectory>${basedir}</outputDirectory>
+        </configuration>
+      </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>8</source>
+                <target>8</target>
+            </configuration>
+        </plugin>
+    </plugins>
+  </build>
+
+  <!-- TODO if we can figure out how to list classes in a directory
+  <archive>
+  	<manifestSections>
+		<manifestSection>
+			<name>Plugin-Classes</name>
+			<manifestEntries>
+			</manifestEntries>
+		</manifestSection>
+  	</manifestSections>
+  </archive>
+  -->
+</project>
