@@ -4,7 +4,14 @@
   
   <groupId>com.cisco.josouthe</groupId>
   <artifactId>WebRestToSNMPTrap</artifactId>
-  <version>1.4</version>
+  <version>1.5</version>
+    <properties>
+        <docker.group>johnsoutherland</docker.group>
+        <docker.name>appdynamics-web-rest-to-snmp-trap</docker.name>
+        <docker.keystorefile>testkey.jks</docker.keystorefile>
+    </properties>
+
+
   <!-- <packaging>jar</packaging>  -->
 
   <dependencies>
@@ -18,12 +25,18 @@
       <dependency>
           <groupId>org.apache.logging.log4j</groupId>
           <artifactId>log4j-core</artifactId>
-          <version>2.17.1</version>
+          <version>2.17.2</version>
       </dependency>
       <dependency>
           <groupId>org.apache.logging.log4j</groupId>
           <artifactId>log4j-api</artifactId>
-          <version>2.17.1</version>
+          <version>2.17.2</version>
+      </dependency>
+      <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>4.13.1</version>
+          <scope>compile</scope>
       </dependency>
 
   </dependencies>
@@ -58,18 +71,21 @@
                                 <groupId>org.snmp4j</groupId>
 								<artifactId>snmp4j</artifactId>
                                 <type>jar</type>
+                                <excludes>META-INF/*</excludes>
                                 <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                             </artifactItem>
                             <artifactItem>
                                 <groupId>org.apache.logging.log4j</groupId>
                                 <artifactId>log4j-core</artifactId>
                                 <type>jar</type>
+                                <excludes>META-INF/*</excludes>
                                 <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                             </artifactItem>
                             <artifactItem>
                                 <groupId>org.apache.logging.log4j</groupId>
                                 <artifactId>log4j-api</artifactId>
                                 <type>jar</type>
+                                <excludes>META-INF/*</excludes>
                                 <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                             </artifactItem>
                         </artifactItems>
@@ -86,6 +102,10 @@
                 <manifest>
                     <mainClass>com.cisco.josouthe.Main</mainClass>
                 </manifest>
+                <manifestEntries>
+                    <Multi-Release>true</Multi-Release>
+                    <Class-Path>.</Class-Path>
+                </manifestEntries>
             </archive>
           <includes>
             <include>**/*</include>
@@ -100,6 +120,49 @@
                 <source>8</source>
                 <target>8</target>
             </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.6.0</version>
+            <executions>
+                <execution>
+                    <id>docker-build</id>
+                    <phase>install</phase>
+                    <goals>
+                        <goal>exec</goal>
+                    </goals>
+                    <configuration>
+                        <executable>docker</executable>
+                        <workingDirectory>${project.basedir}</workingDirectory>
+                        <arguments>
+                            <argument>build</argument>
+                            <argument>--build-arg</argument>
+                            <argument>jarFile=${project.artifactId}-${project.version}.jar</argument>
+                            <argument>--build-arg</argument>
+                            <argument>keystorefile=${docker.keystorefile}</argument>
+                            <argument>-t</argument>
+                            <argument>${docker.group}/${docker.name}:${project.version}</argument>
+                            <argument>.</argument>
+                        </arguments>
+                    </configuration>
+                </execution>
+                <execution>
+                    <id>docker-push</id>
+                    <phase>deploy</phase>
+                    <goals>
+                        <goal>exec</goal>
+                    </goals>
+                    <configuration>
+                        <executable>docker</executable>
+                        <workingDirectory>${project.basedir}</workingDirectory>
+                        <arguments>
+                            <argument>push</argument>
+                            <argument>${docker.group}/${docker.name}:${project.version}</argument>
+                        </arguments>
+                    </configuration>
+                </execution>
+            </executions>
         </plugin>
     </plugins>
   </build>

@@ -12,16 +12,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configurator;
 
 public class Main {
-
-    private static final Logger logger = LogManager.getLogger(Main.class);
-
+    private static String internalConfigFile = "main/resources/config.properties";
+    private static final Logger logger = LogManager.getFormatterLogger();
     public Main( String configFileName ) {
-        LoggerContext loggerContext = Configurator.initialize("Main", configFileName);
-
         logger.info("System starting with configuration: " + configFileName );
 
         Properties props = new Properties();
@@ -31,24 +26,23 @@ public class Main {
             try {
                 is = new FileInputStream(configFile);
             } catch (FileNotFoundException e) {
-                System.err.println("Config file not found! Exception: "+e);
+                logger.error("Config file not found! Exception: "+e);
             }
         } else {
-            URL configFileURL = getClass().getClassLoader().getResource(configFileName);
-            logger.info("Config file URL: " + configFileURL.toExternalForm());
-            is = getClass().getClassLoader().getResourceAsStream(configFileName);
+            logger.warn("Config file not found: "+ configFileName +" attempting to load from jar internally");
+            URL configFileURL = getClass().getClassLoader().getResource(internalConfigFile);
+            logger.info("Config file URL: " + configFileURL);
+            is = getClass().getClassLoader().getResourceAsStream(internalConfigFile);
+        }
+        if(is == null) {
+            logger.fatal("UNABLE TO START, no configuration found!");
+            System.exit(1);
         }
         try {
             props.load(is);
         } catch (IOException e) {
             logger.error("Error loading configuration: "+ configFileName +" Exception: "+ e.getMessage());
-            return;
-        }
-        if( props.getProperty("appenders","nothing").equals("nothing") ) {
-            Configurator.shutdown(loggerContext);
-            Configurator.initialize("Failsafe", "main/resources/default-log4j2.properties");
-            logger.info("System starting with configuration: " + configFileName );
-            logger.info("No logging configuration defined, using default log4j2 config in main/resources/default-log4j2.properties, if this isn't wanted behavior, update config");
+            System.exit(1);
         }
 
         boolean useSSL = false;
@@ -58,7 +52,7 @@ public class Main {
         boolean useClientAuth = false;
         if( props.getProperty("authRequired","false").equalsIgnoreCase("true") )
             useClientAuth=true;
-
+        logger.info("Starting server with settings: useSSL=%s authRequired=%s",useSSL,useClientAuth);
         try {
             // setup the socket address
             InetSocketAddress address = new InetSocketAddress( Integer.parseInt(props.getProperty("serverPort","8000")) );
@@ -119,7 +113,7 @@ public class Main {
                 httpsServer.createContext(props.getProperty("appdynamics-action-uri","/action"), new SendFileHandler(props.getProperty("appdynamics-action-uri","/action"), props.getProperty("appdynamics-action-file","main/resources/AppDynamics-custom-action-payload.txt")));
                 httpsServer.setExecutor(new ThreadPoolExecutor(4, Integer.parseInt(props.getProperty("threadPoolMaxSize", "8")), Integer.parseInt(props.getProperty("threadPoolKeepAliveSeconds", "30")), TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(Integer.parseInt(props.getProperty("threadPoolCapacity", "100")))));
                 httpsServer.start();
-                logger.info("Server Started");
+                logger.info("Server Started listening on "+ address.toString());
             } else {
                 logger.info("Starting HTTP Server (without SSL) ...");
                 HttpServer httpServer = HttpServer.create( address, 0);
@@ -136,7 +130,7 @@ public class Main {
                 httpServer.createContext(props.getProperty("appdynamics-action-uri","/action"), new SendFileHandler(props.getProperty("appdynamics-action-uri","/action"), props.getProperty("appdynamics-action-file","main/resources/AppDynamics-custom-action-payload.txt")));
                 httpServer.setExecutor(new ThreadPoolExecutor(4, Integer.parseInt(props.getProperty("threadPoolMaxSize", "8")), Integer.parseInt(props.getProperty("threadPoolKeepAliveSeconds", "30")), TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(Integer.parseInt(props.getProperty("threadPoolCapacity", "100")))));
                 httpServer.start();
-                logger.info("Server Started");
+                logger.info("Server Started listening on "+ address.toString());
             }
 
         } catch (Exception exception) {
@@ -149,7 +143,7 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) {
-        String configFileName = "main/resources/config.properties";
+        String configFileName = internalConfigFile;
         if (args.length > 0) configFileName = args[0];
         Main main = new Main(configFileName);
     }

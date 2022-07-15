@@ -14,7 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class SendFileHandler implements HttpHandler {
-    private static final Logger logger = LogManager.getLogger(SendFileHandler.class);
+    private static final Logger logger = LogManager.getFormatterLogger(SendFileHandler.class.getName());
     String response = "";
     Boolean isError = false;
     String path;

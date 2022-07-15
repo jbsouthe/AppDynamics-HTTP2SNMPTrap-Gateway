@@ -21,7 +21,7 @@ import org.snmp4j.transport.DefaultTcpTransportMapping;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 public class TrapHandler implements HttpHandler {
-    private static final Logger logger = LogManager.getLogger(TrapHandler.class);
+    private static final Logger logger = LogManager.getFormatterLogger(TrapHandler.class.getName());
     CommunityTarget target = null;
     String baseOID = ".1.3.6.1.4.1.40684.138."; //enterprises.appdynamics.events
     String trapOID = baseOID + "2"; //.EventNotification
