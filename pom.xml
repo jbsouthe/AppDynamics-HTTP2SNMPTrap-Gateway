@@ -137,6 +137,7 @@
                         <workingDirectory>${project.basedir}</workingDirectory>
                         <arguments>
                             <argument>build</argument>
+                            <argument>--network=host</argument>
                             <argument>--build-arg</argument>
                             <argument>jarFile=${project.artifactId}-${project.version}.jar</argument>
                             <argument>--build-arg</argument>
